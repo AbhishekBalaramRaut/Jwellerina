@@ -20,4 +20,10 @@ public class ErrorCodeConstants {
 	public static String FAILED_TO_GET_ITEM = "LG016";
 	public static String ITEM_ID_IS_REQUIRED = "LG017";
 	public static String CATEGORY_ID_IS_REQUIRED = "LG018";
+	public static String INVALID_QUANTITY = "LG019";
+	public static String FAILED_TO_PLACE_ORDER = "LG020";
+	public static String INVALID_ORDER = "LG021";
+	public static String FAILED_TO_GET_ORDER = "LG022";
+	public static String FAILED_TO_GET_ORDERS = "LG023";
+	public static String FAILED_TO_CANCEL_ORDERS = "LG024";
 }

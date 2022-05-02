@@ -30,7 +30,7 @@ public class SignUpService implements SignUpServiceIntf {
 
 	@Autowired
 	ModelMapper modelMapper;
-	
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
@@ -42,23 +42,22 @@ public class SignUpService implements SignUpServiceIntf {
 
 	@Autowired
 	private CustomerRepository customerRepository;
-	
+
 	@Autowired
 	private MongoTemplate mt;
-	
-	
-	public static final Pattern VALID_EMAIL_ADDRESS_REGEX = 
-		    Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-		    
+
+	public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+			Pattern.CASE_INSENSITIVE);
+
 	/**
 	 * Sign up method
 	 */
 	@Override
 	public Map<String, Object> singUp(CustomerDto customerDto) {
-		Customer c = modelMapper.map(customerDto, Customer.class);	
+		Customer c = modelMapper.map(customerDto, Customer.class);
 		Map<String, Object> result = new HashMap<>();
 		String code = checkDuplicateEmailOrMobile(customerDto);
-		if(code != null) {
+		if (code != null) {
 			result.put(GeneralConstants.CODE, code);
 			return result;
 		}
@@ -68,98 +67,103 @@ public class SignUpService implements SignUpServiceIntf {
 			authenticate(c.getUsername(), c.getPassword());
 		} catch (Exception e) {
 			e.printStackTrace();
-		    result.put(GeneralConstants.CODE, ErrorCodeConstants.SIGN_UP_FAILED);
+			result.put(GeneralConstants.CODE, ErrorCodeConstants.SIGN_UP_FAILED);
 			return result;
 		}
-		
+
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(c.getUsername());
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		result.put(GeneralConstants.CODE, GeneralConstants.SUCCESS_CODE);
 		result.put(GeneralConstants.DATA, new JwtResponse(token));
-		
+
 		return result;
 	}
-	
+
 	private String checkDuplicateEmailOrMobile(CustomerDto customerDto) {
 		String email = customerDto.getEmail();
-		if(StringUtils.isEmpty(email)) {
-			return ErrorCodeConstants.EMAIL_IS_REQUIRED;
+		Customer c = null;
+//		if(StringUtils.isEmpty(email)) {
+//			return ErrorCodeConstants.EMAIL_IS_REQUIRED;
+//		}
+		if (!StringUtils.isEmpty(email)) {
+			if (validateEmail(email) != true) {
+				return ErrorCodeConstants.INVALID_EMAIL;
+			}
+			c = customerRepository.findOneByEmail(customerDto.getEmail());
+			if (c != null) {
+				return ErrorCodeConstants.DUPLICATE_EMAIL;
+			}
 		}
-		if(validateEmail(email) != true) {
-			return ErrorCodeConstants.INVALID_EMAIL;
-		}
-		
+
 		String mobile = customerDto.getMobile();
 		String strPattern = "^[0-9]{10}$";
-		if(StringUtils.isEmpty(mobile)) {
+		if (StringUtils.isEmpty(mobile)) {
 			return ErrorCodeConstants.MOBILE_IS_REQUIRED;
 		}
-		if(mobile.matches(strPattern) != true) {
+		if (mobile.matches(strPattern) != true) {
 			return ErrorCodeConstants.INVALID_MOBILE;
 		}
 		String username = customerDto.getUsername();
-		if(StringUtils.isEmpty(username)) {
+		if (StringUtils.isEmpty(username)) {
 			return ErrorCodeConstants.INVALID_USERNAME;
 		}
-		if(!(username.length() > 6 && username.length() < 15)) {
+		if (!(username.length() > 6 && username.length() < 15)) {
 			return ErrorCodeConstants.INVALID_USERNAME;
 		}
-		Customer c = customerRepository.findOneByEmail(customerDto.getEmail());
-		if(c != null) {
-			return ErrorCodeConstants.DUPLICATE_EMAIL;
-		}
+
 		c = customerRepository.findOneByMobile(customerDto.getMobile());
-		if(c != null) {
+		if (c != null) {
 			return ErrorCodeConstants.DUPLICATE_MOBILE;
 		}
 		c = customerRepository.findOneByUsername(customerDto.getUsername());
-		if(c != null) {
+		if (c != null) {
 			return ErrorCodeConstants.DUPLICATE_USERNAME;
 		}
 		return null;
 	}
-	
+
 	public boolean validateEmail(String email) {
 		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(email);
 		return matcher.matches();
 	}
 
-
-	private Long generateCustomerId() {	
+	private Long generateCustomerId() {
 		Query query = new Query();
 		query.with(Sort.by(Sort.Direction.DESC, "_id"));
 		query.limit(1);
 		Customer maxEntity = mt.findOne(query, Customer.class);
-		if(maxEntity == null) {
+		if (maxEntity == null) {
 			return 1L;
 		} else {
 			return (maxEntity.getId() + 1);
 		}
 	}
+
 	/**
 	 * Login method
 	 */
 	@Override
 	public Map<String, Object> signIn(CustomerDto customerDto) {
-		Map<String, Object> result = new HashMap<>();		
+		Map<String, Object> result = new HashMap<>();
 		try {
 			authenticate(customerDto.getUsername(), customerDto.getPassword());
 		} catch (Exception e) {
 			e.printStackTrace();
-		    result.put(GeneralConstants.CODE, ErrorCodeConstants.WRONG_USER_PWD);
+			result.put(GeneralConstants.CODE, ErrorCodeConstants.WRONG_USER_PWD);
 			return result;
 		}
-		
+
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(customerDto.getUsername());
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		result.put(GeneralConstants.CODE, GeneralConstants.SUCCESS_CODE);
 		result.put(GeneralConstants.DATA, new JwtResponse(token));
-		
+
 		return result;
 	}
-	
+
 	/**
-	 * Common method to authenticate	
+	 * Common method to authenticate
+	 * 
 	 * @param username
 	 * @param password
 	 * @throws Exception
@@ -173,5 +177,5 @@ public class SignUpService implements SignUpServiceIntf {
 			throw new Exception("INVALID_CREDENTIALS", e);
 		}
 	}
-	
+
 }
