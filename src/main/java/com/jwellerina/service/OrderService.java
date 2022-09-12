@@ -73,6 +73,7 @@ public class OrderService implements OrderServiceIntf {
 		c.setStatus(GeneralConstants.STATUS_ORDERED);
 		c.setId(generateOrderId());
 		c.setOrderDate(new Timestamp(System.currentTimeMillis()));
+		c.setPayment(false);
 		orderRepository.save(c);
 		return GeneralConstants.SUCCESS_CODE;
 	}
@@ -105,17 +106,18 @@ public class OrderService implements OrderServiceIntf {
 	public Map<String, Object> getOrder(Integer orderId, String token) {
 		Map<String, Object> result = new HashMap<>();
 		CustomerDto cust = utilityFunctions.getCurrentProfile(token);
-		Order cat = null;
+		Order order = null;
 		
-		cat = orderRepository.findByIdAndMobile(orderId, cust.getMobile());
+		order = orderRepository.findByIdAndMobile(orderId, cust.getMobile());
 
-		if (cat == null) {
+		if (order == null) {
 			result.put(GeneralConstants.CODE, ErrorCodeConstants.INVALID_ORDER);
 			return result;
 		}
 		
+		
 		result.put(GeneralConstants.CODE, GeneralConstants.SUCCESS_CODE);
-		result.put(GeneralConstants.DATA, cat);
+		result.put(GeneralConstants.DATA, order);
 
 		return result;
 	}

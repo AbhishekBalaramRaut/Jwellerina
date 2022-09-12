@@ -38,47 +38,50 @@ public class ItemsService implements ItemsServiceIntf {
 	@Override
 	public String addEditCategory(Category c) {
 		Optional<Category> cat = null;
-		Category db = null;
+		
 		if (c.getId() != null) {
 			cat = categoryRepository.findById(c.getId());
 
 			if (!cat.isPresent()) {
 				return ErrorCodeConstants.INVALID_CATEGORY_ID;
 			}
-			db = cat.get();
 		}
+		List<Item> itemList = new ArrayList<>();
 		// c.setItems(list);
 		if (c.getId() == null) {
 			c.setId(generateCategoryId());
-		} else {
-			if (!StringUtils.isEmpty(c.getName())) {
-				db.setName(c.getName());
-			}
-			if (!StringUtils.isEmpty(c.getDescription())) {
-				db.setDescription(c.getDescription());
-			}
+		}
 
-			if (c.getItems() != null && c.getItems().size() > 0) {
-				List<Item> itemList = new ArrayList<>();
-				List<Item> newList = new ArrayList<>();
-				newList = (List<Item>) c.getItems();
-				for (int i = 0; i < newList.size(); i++) {
-					Item m = newList.get(i);
-					if (m.getId() != null) {
-						Optional<Item> k = itemRepository.findById(m.getId());
+		if (c.getItems() != null && c.getItems().size() > 0) {
+			itemList = new ArrayList<>();
+			List<Item> newList = new ArrayList<>();
+			newList = (List<Item>) c.getItems();
+			for (int i = 0; i < newList.size(); i++) {
+				Item m = newList.get(i);
+				if (m.getId() != null) {
+					Optional<Item> k = itemRepository.findById(m.getId());
 
-						if (k.isPresent()) {
-							itemList.add(k.get());
-						}
-
+					if (k.isPresent()) {
+						Item tobeInsertedItem = k.get();
+						tobeInsertedItem.setCategoryId(c.getId());
+						itemList.add(tobeInsertedItem);
 					}
-				}
 
-				c.setItems(itemList);
+				}
 			}
+
+			c.setItems(itemList);
+
 		}
 		c = categoryRepository.save(c);
 
+		for (Item ob : itemList) {
+			if (ob.getCategoryId() != null) {
+				ob.setCategoryId(c.getId());
+				itemRepository.save(ob);
+			}
+
+		}
 		return GeneralConstants.SUCCESS_CODE;
 	}
 

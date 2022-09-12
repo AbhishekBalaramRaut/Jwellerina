@@ -1,6 +1,8 @@
 package com.jwellerina.documents;
 
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,4 +19,6 @@ public class Item {
 	private String description;
 	private String image;
 	private double price;
+	
+	private Integer categoryId;
 }

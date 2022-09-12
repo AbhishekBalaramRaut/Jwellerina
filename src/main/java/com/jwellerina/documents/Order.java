@@ -19,6 +19,7 @@ public class Order {
 	private String mobile;
 	private String status;
 	private Date orderDate;
+	private Boolean payment;
 	
 	@DBRef
     private Collection<OrderItem> items;
