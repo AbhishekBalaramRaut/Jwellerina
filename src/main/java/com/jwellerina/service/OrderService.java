@@ -142,6 +142,13 @@ public class OrderService implements OrderServiceIntf {
 	}
 
 	@Override
+	public CustomerDto getProfile(String token) {
+		CustomerDto cust = utilityFunctions.getCurrentProfile(token);
+
+		return cust;
+	}
+	
+	@Override
 	public String cancelOrder(Integer oId, String token) {
 		CustomerDto cust = utilityFunctions.getCurrentProfile(token);
 		Order cat = null;

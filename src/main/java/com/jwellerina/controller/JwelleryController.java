@@ -90,6 +90,22 @@ public class JwelleryController {
 		return utilityFunctions.prepareResponse( GeneralConstants.SUCCESS_CODE,resultJson.get(GeneralConstants.DATA));
 	}
 	
+	@GetMapping("/profile")
+	public ServerResponse getProfile(@RequestHeader("accessToken") String token) {
+	
+		CustomerDto customerDto = new CustomerDto();		
+		
+		try {
+			customerDto =  orderService.getProfile(token);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return utilityFunctions.prepareResponse(ErrorCodeConstants.FAILED_TO_GET_ORDERS,null);
+		}
+		
+		return utilityFunctions.prepareResponse( GeneralConstants.SUCCESS_CODE,customerDto);
+	}
+	
 	@DeleteMapping("/order/{orderId}")
 	public ServerResponse cancelOrder(@PathVariable Integer orderId,
 			@RequestHeader("accessToken") String token) {
