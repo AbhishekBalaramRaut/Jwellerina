@@ -8,6 +8,7 @@ public class GeneralConstants {
 	public static String DATA = "data";
 	
 	public static String STATUS_ORDERED = "1";
-	public static String STATUS_COMPLETED = "2";
-	public static String STATUS_CANCELLED = "3";
+	public static String STATUS_IN_PROGRESS= "2";
+	public static String STATUS_COMPLETED = "3";
+	public static String STATUS_CANCELLED = "4";
 }
