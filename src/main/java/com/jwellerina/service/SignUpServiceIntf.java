@@ -8,4 +8,6 @@ public interface SignUpServiceIntf {
 
 	public Map<String,Object> singUp(CustomerDto customerDto);
 	public Map<String,Object> signIn(CustomerDto customerDto);
+	
+	public String updateCustomer(CustomerDto customerDto,  String token);
 }

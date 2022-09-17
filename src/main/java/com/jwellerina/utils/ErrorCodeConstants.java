@@ -26,4 +26,9 @@ public class ErrorCodeConstants {
 	public static String FAILED_TO_GET_ORDER = "LG022";
 	public static String FAILED_TO_GET_ORDERS = "LG023";
 	public static String FAILED_TO_CANCEL_ORDERS = "LG024";
+	
+	public static String FAILED_TO_UPDATE_CUSTOMER= "LG025";
+	
+	public static String USERNAME_REQUIRED = "LG031";
+	public static String PASSWORD_REQUIRED = "LG032";
 }

@@ -24,6 +24,7 @@ import com.jwellerina.model.JwtResponse;
 import com.jwellerina.repositories.CustomerRepository;
 import com.jwellerina.utils.ErrorCodeConstants;
 import com.jwellerina.utils.GeneralConstants;
+import com.jwellerina.utils.UtilityFunctions;
 
 @Service
 public class SignUpService implements SignUpServiceIntf {
@@ -45,7 +46,10 @@ public class SignUpService implements SignUpServiceIntf {
 
 	@Autowired
 	private MongoTemplate mt;
-
+	
+	@Autowired
+	UtilityFunctions utilityFunctions;
+	
 	public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
 			Pattern.CASE_INSENSITIVE);
 
@@ -160,6 +164,25 @@ public class SignUpService implements SignUpServiceIntf {
 
 		return result;
 	}
+	
+	@Override
+	public String updateCustomer(CustomerDto customerDto,  String token) {
+		CustomerDto cust = utilityFunctions.getCurrentProfile(token);
+		Customer c = customerRepository.findOneByUsername(cust.getUsername());
+		
+		c.setUsername(customerDto.getUsername());
+		c.setPassword(customerDto.getPassword());
+		
+		try {
+			customerRepository.save(c);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ErrorCodeConstants.FAILED_TO_UPDATE_CUSTOMER;
+		}
+		
+		return GeneralConstants.SUCCESS_CODE;
+	}
+	
 
 	/**
 	 * Common method to authenticate

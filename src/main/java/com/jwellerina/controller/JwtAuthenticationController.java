@@ -9,8 +9,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -90,5 +92,30 @@ public class JwtAuthenticationController {
 		}
 		
 		return utilityFunctions.prepareResponse( GeneralConstants.SUCCESS_CODE,resultJson.get(GeneralConstants.DATA));
+	}
+	
+	
+	@RequestMapping(value = "/updateCustomer", method = RequestMethod.POST)
+	public ServerResponse updateCustomer(@RequestBody CustomerDto customer,
+			@RequestHeader("accessToken") String token) throws Exception {
+		String code = null;
+		
+		try {
+			if(StringUtils.isEmpty(customer.getUsername())) {
+				return utilityFunctions.prepareResponse(ErrorCodeConstants.USERNAME_REQUIRED,null);
+			}
+			if(StringUtils.isEmpty(customer.getPassword())) {
+				return utilityFunctions.prepareResponse( ErrorCodeConstants.PASSWORD_REQUIRED,null);
+			}
+			code = signUpService.updateCustomer(customer,token);
+			if(!code.equalsIgnoreCase(GeneralConstants.SUCCESS_CODE)) {
+				 return utilityFunctions.prepareResponse( code,null);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return utilityFunctions.prepareResponse(ErrorCodeConstants.FAILED_TO_UPDATE_CUSTOMER,null);
+		}
+		
+		return utilityFunctions.prepareResponse( GeneralConstants.SUCCESS_CODE,null);
 	}
 }
