@@ -34,10 +34,11 @@ public class JwelleryController {
 	public ServerResponse placeOrder(@RequestBody Order o,
 			@RequestHeader("accessToken") String token) {
 		String code = null;
+		Map<String, Object> resultJson = new HashMap<>();
 		
 		try {
-			code = orderService.placeOrder(o, token);
-		
+			resultJson = orderService.placeOrder(o, token);
+			code = (String) resultJson.get(GeneralConstants.CODE);
 			if(!code.equalsIgnoreCase(GeneralConstants.SUCCESS_CODE)) {
 				 return utilityFunctions.prepareResponse( code,null);
 			}
@@ -46,7 +47,7 @@ public class JwelleryController {
 			return utilityFunctions.prepareResponse(ErrorCodeConstants.FAILED_TO_PLACE_ORDER,null);
 		}
 		
-		return utilityFunctions.prepareResponse( GeneralConstants.SUCCESS_CODE, null);
+		return utilityFunctions.prepareResponse( GeneralConstants.SUCCESS_CODE, resultJson.get(GeneralConstants.DATA));
 	}
 	
 	@GetMapping("/order/{orderId}")

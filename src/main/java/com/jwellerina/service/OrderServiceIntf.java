@@ -7,7 +7,7 @@ import com.jwellerina.model.CustomerDto;
 
 public interface OrderServiceIntf {
 
-	public String placeOrder(Order c, String token);
+	public Map<String, Object> placeOrder(Order c, String token);
 	public Map<String, Object>  getOrder(Integer orderId, String token);
 	public Map<String, Object> getOrders(String token);
 	public CustomerDto getProfile(String token);

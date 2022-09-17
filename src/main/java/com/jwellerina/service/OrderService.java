@@ -42,7 +42,8 @@ public class OrderService implements OrderServiceIntf {
 	private MongoTemplate mt;
 	
 	@Override
-	public String placeOrder(Order c, String token) {
+	public Map<String, Object> placeOrder(Order c, String token) {
+		Map<String, Object> result = new HashMap<>();
 		CustomerDto cust = utilityFunctions.getCurrentProfile(token);
 		c.setMobile(cust.getMobile());
 		List<OrderItem> oItems = (List<OrderItem>) c.getItems();
@@ -50,18 +51,24 @@ public class OrderService implements OrderServiceIntf {
 		
 		for(OrderItem ot: oItems) {
 			if(ot.getQuantity() == null) {
-				return ErrorCodeConstants.INVALID_QUANTITY;
+				result.put(GeneralConstants.CODE, ErrorCodeConstants.INVALID_QUANTITY);
+				result.put(GeneralConstants.DATA, cat);
+				return result;
 			}
 			Item p = ot.getItem();
 			
 			if(p.getId() == null) {
-				return ErrorCodeConstants.ITEM_ID_IS_REQUIRED;
+				result.put(GeneralConstants.CODE, ErrorCodeConstants.ITEM_ID_IS_REQUIRED);
+				result.put(GeneralConstants.DATA, cat);
+				return result;
 			}		
 
 			cat = itemRepository.findById(p.getId());
 
 			if (!cat.isPresent()) {
-				return ErrorCodeConstants.INVALID_ITEM_ID;
+				result.put(GeneralConstants.CODE, ErrorCodeConstants.INVALID_ITEM_ID);
+				result.put(GeneralConstants.DATA, cat);
+				return result;
 			}
 			ot.setItem(cat.get());
 			ot.setId(generateOrderItemId());
@@ -75,7 +82,10 @@ public class OrderService implements OrderServiceIntf {
 		c.setOrderDate(new Timestamp(System.currentTimeMillis()));
 		c.setPayment(false);
 		orderRepository.save(c);
-		return GeneralConstants.SUCCESS_CODE;
+		
+		result.put(GeneralConstants.CODE, GeneralConstants.SUCCESS_CODE);
+		result.put(GeneralConstants.DATA, c);
+		return result;
 	}
 
 	private Integer generateOrderItemId() {
