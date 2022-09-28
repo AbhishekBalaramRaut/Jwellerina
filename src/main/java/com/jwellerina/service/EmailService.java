@@ -29,11 +29,12 @@ public class EmailService {
 		properties.put("mail.smtp.ssl.enable", "true");
 		properties.put("mail.smtp.auth", "true");
 		
+		//String[] emailList = to.split(",");	
 		Session session = Session.getInstance(properties, new Authenticator() {
 			
 			@Override
 			protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
-				return new javax.mail.PasswordAuthentication("jwellerina@gmail.com", "wjejatcsgtgipsbm");
+				return new javax.mail.PasswordAuthentication("jwellerina@gmail.com", "edqenvramqdugrnx");
 			}
 		});
 		
@@ -43,7 +44,11 @@ public class EmailService {
 		
 		try {
 			m.setFrom(from);
-			m.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			
+//			for(String email: emailList) {
+//				m.addRecipient(Message.RecipientType.TO, InternetAddress(email));
+//			}
+			m.addRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
 			m.setSubject(subject);
 			m.setText(message);
 			
