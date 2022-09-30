@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -147,6 +148,23 @@ public class AdminController {
 		emailService.sendMail(c.getTo(), c.getSubject(), c.getMessage());
 		
 		return utilityFunctions.prepareResponse( GeneralConstants.SUCCESS_CODE, null);
+	}
+	
+	@RequestMapping(value = "/sendOtp", method = RequestMethod.POST)
+	public ServerResponse sendOtp(@RequestBody EmailRequest c) throws Exception {
+		
+		System.out.println(c);
+		
+		Random rnd = new Random();
+		int number = rnd.nextInt(999999);
+
+		    // this will convert any number sequence into 6 character.
+		String.format("%06d", number);
+		c.setSubject("Email Verification : Jewellerina");
+		c.setMessage("Your account creation is in progress. \n\n Your OTP is "+number);
+		emailService.sendMail(c.getTo(), c.getSubject(), c.getMessage());
+		
+		return utilityFunctions.prepareResponse( GeneralConstants.SUCCESS_CODE, number);
 	}
 	
 	@RequestMapping(value = "/items/{categoryId}", method = RequestMethod.GET)
